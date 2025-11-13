@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOBBY - Blockchain Quiz Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <h1 class="text-5xl font-bold text-white mb-4">
+                🤖 DOBBY
+            </h1>
+            <p class="text-xl text-blue-200 mb-2">Your Upbeat Blockchain Tutor</p>
+            <p class="text-lg text-gray-300">Generate fresh, engaging blockchain quizzes powered by AI</p>
+        </div>
+
+        <!-- Quiz Generator Form -->
+        <div class="max-w-4xl mx-auto bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl">
+            <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+                <i class="fas fa-magic mr-3 text-yellow-400"></i>
+                Create Your Quiz
+            </h2>
+
+            <form id="quizForm" class="space-y-6">
+                <!-- Topic Selection -->
+                <div>
+                    <label class="block text-white font-semibold mb-2">Quiz Topic</label>
+                    <input type="text" id="topic" 
+                           class="w-full px-4 py-3 rounded-lg bg-white/20 text-white placeholder-gray-300 border border-white/30 focus:border-blue-400 focus:outline-none"
+                           placeholder="e.g., Zero-Knowledge Proofs, DeFi Protocols, Consensus Mechanisms"
+                           value="Zero-Knowledge Proofs and Privacy">
+                </div>
+
+                <!-- Number of Questions -->
+                <div>
+                    <label class="block text-white font-semibold mb-2">Number of Questions</label>
+                    <select id="numQuestions" 
+                            class="w-full px-4 py-3 rounded-lg bg-white/20 text-white border border-white/30 focus:border-blue-400 focus:outline-none">
+                        <option value="3">3 Questions</option>
+                        <option value="5" selected>5 Questions</option>
+                        <option value="8">8 Questions</option>
+                        <option value="10">10 Questions</option>
+                    </select>
+                </div>
+
+                <!-- Character Selection -->
+                <div>
+                    <label class="block text-white font-semibold mb-2">Choose Your Tutor</label>
+                    <div id="characterGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Characters will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Difficulty Distribution -->
+                <div>
+                    <label class="block text-white font-semibold mb-4">Difficulty Mix</label>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-green-300 font-medium mb-2">
+                                Beginner <span id="beginnerPercent">40%</span>
+                            </label>
+                            <input type="range" id="beginnerSlider" min="0" max="100" value="40" 
+                                   class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer slider-green">
+                        </div>
+                        <div>
+                            <label class="block text-yellow-300 font-medium mb-2">
+                                Intermediate <span id="intermediatePercent">40%</span>
+                            </label>
+                            <input type="range" id="intermediateSlider" min="0" max="100" value="40" 
+                                   class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer slider-yellow">
+                        </div>
+                        <div>
+                            <label class="block text-red-300 font-medium mb-2">
+                                Advanced <span id="advancedPercent">20%</span>
+                            </label>
+                            <input type="range" id="advancedSlider" min="0" max="100" value="20" 
+                                   class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer slider-red">
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-300 mt-2">Total: <span id="totalPercent">100%</span></p>
+                </div>
+
+                <!-- Generate Button -->
+                <button type="submit" id="generateBtn" 
+                        class="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    <i class="fas fa-rocket mr-2"></i>
+                    Generate Quiz
+                </button>
+            </form>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="hidden text-center py-8">
+                <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+                <p class="text-white text-lg">DOBBY is crafting your quiz...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="hidden bg-red-500/20 border border-red-500 rounded-lg p-4 mt-6">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-triangle text-red-400 mr-3"></i>
+                    <div>
+                        <h3 class="text-red-300 font-semibold">Error</h3>
+                        <p id="errorMessage" class="text-red-200"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Display -->
+        <div id="quizContainer" class="hidden max-w-4xl mx-auto mt-8 bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">Your Quiz</h2>
+                <button id="saveQuizBtn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    <i class="fas fa-save mr-2"></i>Save Quiz
+                </button>
+            </div>
+            <div id="quizContent"></div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

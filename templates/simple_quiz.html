@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎓 Dobby the Educator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #4a5568;
+            margin: 0;
+        }
+        .question-card {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        .question {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+        .options {
+            list-style: none;
+            padding: 0;
+        }
+        .option {
+            background: white;
+            margin: 8px 0;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+        .option:hover {
+            border-color: #667eea;
+            background: #edf2f7;
+        }
+        .option.selected {
+            border-color: #667eea;
+            background: #e6fffa;
+        }
+        .option.correct {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+        .option.incorrect {
+            border-color: #f56565;
+            background: #fff5f5;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background: #5a67d8;
+        }
+        .btn:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+        }
+        .results {
+            text-align: center;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .score {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        .dobby-chat {
+            background: #e6fffa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid #38b2ac;
+        }
+        .chat-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+                <img src="{{ url_for('static', filename='images/dobby-logo.png') }}" alt="Dobby Logo" style="width: 60px; height: 60px; margin-right: 15px;">
+                <h1 style="margin: 0;">Dobby the Educator</h1>
+            </div>
+            <p>Master blockchain concepts with your AI tutor!</p>
+        </div>
+
+        <div id="quiz-container">
+            <div id="question-display"></div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button id="prev-btn" class="btn" onclick="prevQuestion()" disabled>Previous</button>
+                <button id="next-btn" class="btn" onclick="nextQuestion()">Next</button>
+                <button id="finish-btn" class="btn hidden" onclick="finishQuiz()">Finish Quiz</button>
+            </div>
+        </div>
+
+        <div id="results-container" class="hidden">
+            <div class="results">
+                <div class="score" id="final-score"></div>
+                <p id="score-message"></p>
+                <button class="btn" onclick="restartQuiz()">Take Again</button>
+            </div>
+            
+            <div class="dobby-chat">
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <img src="{{ url_for('static', filename='images/dobby-logo.png') }}" style="width: 30px; height: 30px; margin-right: 10px;">
+                    <h3 style="margin: 0;">Dobby the Educator's Feedback</h3>
+                </div>
+                <div id="dobby-response" style="margin-top: 15px; font-style: italic; color: #2d3748;">Loading personalized feedback from Dobby the Educator...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let questions = [];
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let score = 0;
+
+        // Generate fresh questions from DOBBY when page loads
+        generateNewQuiz();
+        
+        function generateNewQuiz() {
+            document.getElementById('question-display').innerHTML = '<div style="text-align: center; padding: 40px;"><img src="{{ url_for("static", filename="images/dobby-logo.png") }}" style="width: 40px; height: 40px; margin-bottom: 10px;"><h3>Dobby the Educator is creating 10 fresh questions for you...</h3><p>This may take a moment!</p></div>';
+            
+            fetch('/api/generate-quiz', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    questions = data.questions;
+                    userAnswers = new Array(questions.length).fill(null);
+                    currentQuestion = 0;
+                    displayQuestion();
+                } else {
+                    document.getElementById('question-display').innerHTML = `<div style="text-align: center; padding: 40px; color: red;"><h3>❌ Error generating quiz</h3><p>${data.error}</p><button class="btn" onclick="generateNewQuiz()">Try Again</button></div>`;
+                }
+            })
+            .catch(error => {
+                document.getElementById('question-display').innerHTML = `<div style="text-align: center; padding: 40px; color: red;"><h3>❌ Connection Error</h3><p>Could not connect to Dobby the Educator</p><button class="btn" onclick="generateNewQuiz()">Try Again</button></div>`;
+            });
+        }
+
+        function displayQuestion() {
+            if (questions.length === 0) return;
+
+            const question = questions[currentQuestion];
+            const container = document.getElementById('question-display');
+            
+            container.innerHTML = `
+                <div class="question-card">
+                    <div class="question">Question ${currentQuestion + 1}: ${question.question}</div>
+                    <ul class="options">
+                        ${question.options.map((option, index) => `
+                            <li class="option" onclick="selectOption(${index})" id="option-${index}">
+                                ${String.fromCharCode(65 + index)}. ${option}
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+
+            // Show previous selection if any
+            if (userAnswers[currentQuestion] !== null) {
+                document.getElementById(`option-${userAnswers[currentQuestion]}`).classList.add('selected');
+            }
+
+            // Update navigation buttons
+            document.getElementById('prev-btn').disabled = currentQuestion === 0;
+            
+            if (currentQuestion === questions.length - 1) {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('finish-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('next-btn').classList.remove('hidden');
+                document.getElementById('finish-btn').classList.add('hidden');
+            }
+        }
+
+        function selectOption(optionIndex) {
+            // Clear previous selections
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Mark selected option
+            document.getElementById(`option-${optionIndex}`).classList.add('selected');
+            userAnswers[currentQuestion] = optionIndex;
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                displayQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                displayQuestion();
+            }
+        }
+
+        function finishQuiz() {
+            // Calculate score
+            score = 0;
+            for (let i = 0; i < questions.length; i++) {
+                if (userAnswers[i] === questions[i].correct) {
+                    score++;
+                }
+            }
+
+            // Show results
+            document.getElementById('quiz-container').classList.add('hidden');
+            document.getElementById('results-container').classList.remove('hidden');
+            
+            const percentage = Math.round((score / questions.length) * 100);
+            document.getElementById('final-score').textContent = `${score}/${questions.length} (${percentage}%)`;
+            
+            let message = '';
+            if (percentage >= 80) {
+                message = '🏆 Excellent! You have a great understanding of blockchain!';
+            } else if (percentage >= 60) {
+                message = '👍 Good job! Keep learning to master blockchain concepts!';
+            } else {
+                message = '📚 Keep studying! Blockchain is complex but you\'re on the right track!';
+            }
+            document.getElementById('score-message').textContent = message;
+            
+            // Get DOBBY's personalized feedback
+            getDobbyFeedback();
+        }
+
+        function restartQuiz() {
+            document.getElementById('quiz-container').classList.remove('hidden');
+            document.getElementById('results-container').classList.add('hidden');
+            generateNewQuiz(); // Generate completely new questions
+        }
+
+        function getDobbyFeedback() {
+            const responseDiv = document.getElementById('dobby-response');
+            responseDiv.innerHTML = '<img src="{{ url_for("static", filename="images/dobby-logo.png") }}" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 5px;"> Dobby the Educator is analyzing your performance...';
+
+            fetch('/api/quiz-summary', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    score: score,
+                    total: questions.length
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                responseDiv.innerHTML = `<img src="{{ url_for("static", filename="images/dobby-logo.png") }}" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 5px;"> <strong>Dobby the Educator says:</strong><br>${data.response}`;
+            })
+            .catch(error => {
+                responseDiv.innerHTML = `<img src="{{ url_for("static", filename="images/dobby-logo.png") }}" style="width: 20px; height: 20px; vertical-align: middle; margin-right: 5px;"> <strong>Dobby the Educator says:</strong><br>Congratulations on completing the quiz! You're making great progress in your blockchain learning journey. Keep exploring and asking questions! 🚀`;
+            });
+        }
+
+        // Removed interactive chat - Dobby the Educator now gives automatic feedback
+    </script>
+</body>
+</html>
