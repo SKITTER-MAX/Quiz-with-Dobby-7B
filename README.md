@@ -19,7 +19,7 @@
 
 ---
 
-## 📦 Repository
+##  Repository
 GitHub Repo: **https://github.com/SKITTER-MAX/Quiz-with-Dobby-7B**
 
 Clone it:
