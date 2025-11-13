@@ -1,4 +1,4 @@
-# 🌐 Blockchain & Web3 Awareness — Interactive Quiz
+#  Blockchain & Web3 Awareness — Interactive Quiz
 [![Play the Quiz](https://img.shields.io/badge/Play%20the%20Quiz-Open--Demo-brightgreen)](https://quiz-with-dobby-7-b.vercel.app/)
 [![Powered by Dobby 7B](https://img.shields.io/badge/Powered%20by-Dobby%207B-blue)](#)
 
@@ -6,7 +6,7 @@
 
 ---
 
-## 🎯 Highlights
+##  Highlights
 - Unique questions on each run  
 - Ideal for Web3 events, onboarding, or community education  
 - Fast, lightweight, beginner-friendly  
@@ -14,8 +14,8 @@
 
 ---
 
-## 🚀 Live Demo
-▶️ **Play now:** https://quiz-with-dobby-7-b.vercel.app/
+##  Live Demo
+ **Play now:** https://quiz-with-dobby-7-b.vercel.app/
 
 ---
 
@@ -30,7 +30,7 @@ cd Quiz-with-Dobby-7B
 
 ```
 
-▶️ Run Locally
+ Run Locally
 Node.js Example
 npm install
 npm run dev
@@ -38,7 +38,7 @@ npm run dev
 
 Open: http://localhost:3000
 
-🧠 How it Works
+ How it Works
 
 User starts quiz
 
@@ -56,7 +56,7 @@ UI displays questions + explanations
   "showHints": true
 }
 
-
+ 
 
  Thanks For Reading 
  
