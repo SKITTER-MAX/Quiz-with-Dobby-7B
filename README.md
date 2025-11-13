@@ -48,7 +48,7 @@ Model generates unique questions
 
 UI displays questions + explanations
 
-⚙️ Config Options
+ Config Options
 {
   "difficulty": "easy | medium | hard",
   "topics": ["Basics", "Smart Contracts", "NFTs", "DeFi", "Privacy"],
@@ -56,6 +56,7 @@ UI displays questions + explanations
   "showHints": true
 }
 
+ Rn it is a bit basic but there are lot of improvements which can be done just need some more finishing 
  
 
  Thanks For Reading 
